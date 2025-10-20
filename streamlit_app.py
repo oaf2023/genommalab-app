@@ -48,8 +48,8 @@ import requests
 def cargar_datos_desde_onedrive(url):
     # Solo lógica de carga, sin widgets
     if url:
-        direct_url = convert_onedrive_link(url)
-        response = requests.get(direct_url)
+        #direct_url = convert_onedrive_link(url)
+        response = requests.get(url)
         return pd.read_csv(BytesIO(response.content))
     return None
     
