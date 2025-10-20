@@ -584,7 +584,7 @@ def cargar_datos():
        
         leer = 1
         if leer ==1:
-             df = cargar_datos_desde_onedrive("https://1drv.ms/x/c/dc44eeb8f33dc5b8/EdSSXeEpJeZEntsyB4udSnABwsOze2igOyXMif55rmYskg?e=MbZNVY")
+             df = cargar_datos_desde_onedrive("https://1drv.ms/x/c/dc44eeb8f33dc5b8/EcDIdi0xIWNMjI630nuNjQsBgMr_B1R9ojE-Vam5ZSZ_OQ?e=4UvUUr")
            
         else:    
             df = pd.read_sql(query, conn)
