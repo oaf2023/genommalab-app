@@ -53,7 +53,7 @@ def cargar_datos_desde_onedrive(url):
         return pd.read_csv(BytesIO(response.content))
     return None
     
-def get_onedrive_direct_link(share_link):
+def convert_onedrive_link(share_link):
     """
     Convierte enlace de OneDrive a enlace directo
     """
