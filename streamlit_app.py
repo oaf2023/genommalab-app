@@ -50,7 +50,7 @@ def cargar_datos_desde_onedrive(url):
     if url:
         #direct_url = convert_onedrive_link(url)
         response = requests.get(url)
-        df = cargar_datos_universal(uploaded_file)
+        df = cargar_datos_universal(response)
         #return pd.read_csv(BytesIO(response.content))
         return df
     return None
