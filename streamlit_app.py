@@ -54,14 +54,31 @@ def load_csv_from_onedrive(url: str) -> pd.DataFrame:
     final_url = _ensure_download_param(url)
     resp = requests.get(final_url, timeout=60, allow_redirects=True)
     resp.raise_for_status()
-    raw = io.BytesIO(resp.content)
-    try:
-        df = pd.read_csv(raw, sep=None, engine="python", encoding="utf-8")
-        return df
-    except Exception:
-        raw.seek(0)
-        df = pd.read_csv(raw, sep=None, engine="python", encoding="utf-8")
-        return df
+    
+    # Lista de encodings para español
+    encodings = ['latin1', 'iso-8859-1', 'cp1252', 'utf-8']
+    
+    for encoding in encodings:
+        try:
+            raw = io.BytesIO(resp.content)
+            df = pd.read_csv(
+                raw, 
+                sep=None, 
+                engine="python", 
+                encoding=encoding,
+                dayfirst=True,
+                parse_dates=False
+            )
+            st.success(f"✅ Archivo cargado con encoding: {encoding}")
+            return df
+        except UnicodeDecodeError as e:
+            continue
+        except Exception as e:
+            st.error(f"Error con {encoding}: {e}")
+            continue
+    
+    st.error("❌ No se pudo cargar con ningún encoding")
+    return None
         
 
 
