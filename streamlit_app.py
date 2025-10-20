@@ -50,7 +50,9 @@ def cargar_datos_desde_onedrive(url):
     if url:
         #direct_url = convert_onedrive_link(url)
         response = requests.get(url)
-        return pd.read_csv(BytesIO(response.content))
+        df = cargar_datos_universal(uploaded_file)
+        #return pd.read_csv(BytesIO(response.content))
+        return df
     return None
     
 def convert_onedrive_link(share_link):
@@ -64,7 +66,44 @@ def convert_onedrive_link(share_link):
         return converted
     return share_link
 
-
+def cargar_datos_universal(uploaded_file):
+    """
+    Intenta cargar datos de múltiples formas
+    """
+    st.info("🔍 Analizando formato del archivo...")
+    
+    # Leer contenido para análisis
+    content = uploaded_file.getvalue().decode('utf-8', errors='ignore')
+    lines = content.split('\n')[:20]  # Primeras 20 líneas
+    
+    # Mostrar vista previa del formato
+    with st.expander("📋 Vista previa del formato crudo"):
+        st.text("Primeras 5 líneas:")
+        for i, line in enumerate(lines[:5]):
+            st.text(f"Línea {i+1}: {repr(line)}")
+    
+    # Intentar diferentes métodos
+    methods = [
+        {"name": "CSV estándar", "func": lambda f: pd.read_csv(f)},
+        {"name": "CSV con punto y coma", "func": lambda f: pd.read_csv(f, delimiter=';')},
+        {"name": "CSV con tabulador", "func": lambda f: pd.read_csv(f, delimiter='\t')},
+        {"name": "CSV flexible", "func": lambda f: pd.read_csv(f, engine='python', on_bad_lines='skip')},
+    ]
+    
+    for method in methods:
+        try:
+            uploaded_file.seek(0)  # Reiniciar archivo
+            df = method["func"](uploaded_file)
+            
+            if not df.empty and len(df.columns) > 1:
+                st.success(f"✅ Cargado con: {method['name']}")
+                st.info(f"📊 Dimensiones: {df.shape[0]} filas × {df.shape[1]} columnas")
+                return df
+        except Exception as e:
+            continue
+    
+    st.error("❌ No se pudo determinar el formato automáticamente")
+    return None
 
 def set_dataframe_font_size(font_size=12, header_size=14):
     """
