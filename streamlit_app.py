@@ -41,6 +41,27 @@ st.set_page_config(
     layout="wide"
 )
 
+import requests
+
+
+# Para archivos en OneDrive (compartir como enlace público)
+@st.cache_data
+def get_onedrive_file():
+    # Obtener enlace directo de descarga
+    onedrive_url = st.secrets["https://1drv.ms/x/c/dc44eeb8f33dc5b8/EdSSXeEpJeZEntsyB4udSnABwsOze2igOyXMif55rmYskg?e=91hBiP"]
+    response = requests.get(onedrive_url)
+    
+    if response.status_code == 200:
+        # Para CSV
+        return pd.read_csv(io.BytesIO(response.content))
+        # Para Excel
+        # return pd.read_excel(io.BytesIO(response.content))
+
+
+
+
+
+
 def set_dataframe_font_size(font_size=12, header_size=14):
     """
     Función para establecer tamaño de fuente en DataFrames
@@ -518,8 +539,11 @@ def cargar_datos():
           AND A.FEMISION >= CAST(DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 31, 0) AS DATE);
         """
        
-
-        df = pd.read_sql(query, conn)
+        leer = 1
+        if leer ==1:
+            df = get_onedrive_file()
+        else:    
+            df = pd.read_sql(query, conn)
         #conn.close()
         df = df[df['CANTIDAD'] != 0]
         # Convertir fecha y crear columnas de año/mes
