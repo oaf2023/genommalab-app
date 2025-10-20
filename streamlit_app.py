@@ -69,7 +69,7 @@ def load_csv_from_onedrive(url: str) -> pd.DataFrame:
                 dayfirst=True,
                 parse_dates=False
             )
-            st.success(f"✅ Archivo cargado con encoding: {encoding}")
+            #st.success(f"✅ Archivo cargado con encoding: {encoding}")
             return df
         except UnicodeDecodeError as e:
             continue
