@@ -51,7 +51,7 @@ def _ensure_download_param(url: str) -> str:
 
 @st.cache_data(ttl=600)
 def load_csv_from_onedrive(url: str) -> pd.DataFrame:
-    final_url = _emsure_download_param(url)
+    final_url = _ensure_download_param(url)
     resp = requests.get(final_url, timeout=60, allow_redirects=True)
     resp.raise_for_status()
     raw = io.BytesIO(resp.content)
