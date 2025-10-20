@@ -1,6 +1,5 @@
 streamlit
 pandas
-urllib
 matplotlib
 plotly
 pyodbc
