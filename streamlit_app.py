@@ -55,23 +55,6 @@ def get_onedrive_direct_link(share_link):
     return share_link
 
 
-# Para archivos en OneDrive (compartir como enlace público)
-@st.cache_data
-def get_onedrive_file():
-    # Obtener enlace directo de descarga
-    onedrive_url = st.secrets["https://1drv.ms/x/c/dc44eeb8f33dc5b8/EdSSXeEpJeZEntsyB4udSnABwsOze2igOyXMif55rmYskg?e=91hBiP"]
-    response = requests.get(onedrive_url)
-    
-    if response.status_code == 200:
-        # Para CSV
-        return pd.read_csv(io.BytesIO(response.content))
-        # Para Excel
-        # return pd.read_excel(io.BytesIO(response.content))
-
-
-
-
-
 
 def set_dataframe_font_size(font_size=12, header_size=14):
     """
