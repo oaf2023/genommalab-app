@@ -44,6 +44,15 @@ st.set_page_config(
 
 import requests
 
+@st.cache_data
+def cargar_datos_desde_onedrive(url):
+    # Solo lógica de carga, sin widgets
+    if url:
+        direct_url = convert_onedrive_link(url)
+        response = requests.get(direct_url)
+        return pd.read_csv(BytesIO(response.content))
+    return None
+    
 def get_onedrive_direct_link(share_link):
     """
     Convierte enlace de OneDrive a enlace directo
@@ -86,7 +95,7 @@ st.markdown("Seleccione los filtros deseados y exporte los resultados agrupados 
 # ==============================
 # 1. FUNCIÓN PARA CARGAR DATOS
 # ==============================
-@st.cache_data(ttl=3600)  # Cachea por 1 hora
+#@st.cache_data(ttl=3600)  # Cachea por 1 hora
 
 
 def cargar_datos():
@@ -536,22 +545,8 @@ def cargar_datos():
        
         leer = 1
         if leer ==1:
-            st.subheader("Conectar OneDrive")
-            share_link = st.text_input("Pega tu enlace de OneDrive:")
-            
-            if share_link:
-                direct_link = get_onedrive_direct_link(share_link)
-                
-                try:
-                    response = requests.get(direct_link)
-                    if response.status_code == 200:
-                        df = pd.read_csv(BytesIO(response.content))
-                        st.success("✅ Conectado a OneDrive")
-                        #st.dataframe(df)
-                    else:
-                        st.error("❌ No se pudo acceder al archivo")
-                except Exception as e:
-                    st.error(f"Error: {e}")
+             df = cargar_datos_desde_onedrive("https://1drv.ms/x/c/dc44eeb8f33dc5b8/EdSSXeEpJeZEntsyB4udSnABwsOze2igOyXMif55rmYskg?e=MbZNVY")
+           
         else:    
             df = pd.read_sql(query, conn)
         
