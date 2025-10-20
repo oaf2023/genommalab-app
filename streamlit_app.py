@@ -56,11 +56,11 @@ def load_csv_from_onedrive(url: str) -> pd.DataFrame:
     resp.raise_for_status()
     raw = io.BytesIO(resp.content)
     try:
-        df = pd.read_csv(raw, sep=None, engine="python", encoding="latin1")
+        df = pd.read_csv(raw, sep=None, engine="python", encoding="utf-8")
         return df
     except Exception:
         raw.seek(0)
-        df = pd.read_csv(raw, sep=None, engine="python", encoding="latin1")
+        df = pd.read_csv(raw, sep=None, engine="python", encoding="utf-8")
         return df
         
 
