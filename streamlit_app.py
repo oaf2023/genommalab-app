@@ -43,6 +43,17 @@ st.set_page_config(
 
 import requests
 
+def get_onedrive_direct_link(share_link):
+    """
+    Convierte enlace de OneDrive a enlace directo
+    """
+    if '1drv.ms' in share_link:
+        # Usar servicio de conversión
+        converted = share_link.replace('1drv.ms', '1drv.ms/x')
+        st.info(f"Enlace convertido: {converted}")
+        return converted
+    return share_link
+
 
 # Para archivos en OneDrive (compartir como enlace público)
 @st.cache_data
@@ -541,9 +552,26 @@ def cargar_datos():
        
         leer = 1
         if leer ==1:
-            df = get_onedrive_file()
+            st.subheader("Conectar OneDrive")
+            share_link = st.text_input("Pega tu enlace de OneDrive:")
+            
+            if share_link:
+                direct_link = get_onedrive_direct_link(share_link)
+                
+                try:
+                    response = requests.get(direct_link)
+                    if response.status_code == 200:
+                        df = pd.read_csv(BytesIO(response.content))
+                        st.success("✅ Conectado a OneDrive")
+                        #st.dataframe(df)
+                    else:
+                        st.error("❌ No se pudo acceder al archivo")
+                except Exception as e:
+                    st.error(f"Error: {e}")
         else:    
             df = pd.read_sql(query, conn)
+        
+        
         #conn.close()
         df = df[df['CANTIDAD'] != 0]
         # Convertir fecha y crear columnas de año/mes
