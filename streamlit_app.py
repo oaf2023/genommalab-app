@@ -19,6 +19,7 @@ from urllib.parse import quote_plus
 import pyodbc
 from datetime import datetime
 import io
+from io import BytesIO
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import plotly.graph_objects as go
