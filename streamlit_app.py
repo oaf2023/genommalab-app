@@ -47,7 +47,7 @@ def _ensure_download_param(url: str) -> str:
     if "download=1" in url:
         return url
     joiner = "&" if "?" in url else "?"
-    return f"{url}{joiner}download=1
+    return f"{url}{joiner}download=1"
 
 @st.cache_data(ttl=600)
 def load_csv_from_onedrive(url: str) -> pd.DataFrame:
