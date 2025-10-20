@@ -28,6 +28,7 @@ import plotly.express as px
 import calendar
 import time
 import locale
+import requests
 
 # Configurar locale para formato español (opcional)
 try:
@@ -42,68 +43,28 @@ st.set_page_config(
     layout="wide"
 )
 
-import requests
+def _ensure_download_param(url: str) -> str:
+    if "download=1" in url:
+        return url
+    joiner = "&" if "?" in url else "?"
+    return f"{url}{joiner}download=1
 
-@st.cache_data
-def cargar_datos_desde_onedrive(url):
-    # Solo lógica de carga, sin widgets
-    if url:
-        #direct_url = convert_onedrive_link(url)
-        response = requests.get(url)
-        df = cargar_datos_universal(BytesIO(response.content))
-        #return pd.read_csv(BytesIO(response.content))
+@st.cache_data(ttl=600)
+def load_csv_from_onedrive(url: str) -> pd.DataFrame:
+    final_url = _emsure_download_param(url)
+    resp = requests.get(final_url, timeout=60, allow_redirects=True)
+    resp.raise_for_status()
+    raw = io.BytesIO(resp.content)
+    try:
+        df = pd.read_csv(raw, sep=None, engine="python", encoding="latin1")
         return df
-    return None
-    
-def convert_onedrive_link(share_link):
-    """
-    Convierte enlace de OneDrive a enlace directo
-    """
-    if '1drv.ms' in share_link:
-        # Usar servicio de conversión
-        converted = share_link.replace('1drv.ms', '1drv.ms/x')
-        st.info(f"Enlace convertido: {converted}")
-        return converted
-    return share_link
+    except Exception:
+        raw.seek(0)
+        df = pd.read_csv(raw, sep=None, engine="python", encoding="latin1")
+        return df
+        
 
-def cargar_datos_universal(uploaded_file):
-    """
-    Intenta cargar datos de múltiples formas
-    """
-    st.info("🔍 Analizando formato del archivo...")
-    
-    # Leer contenido para análisis
-    content = uploaded_file.getvalue().decode('utf-8', errors='ignore')
-    lines = content.split('\n')[:20]  # Primeras 20 líneas
-    
-    # Mostrar vista previa del formato
-    with st.expander("📋 Vista previa del formato crudo"):
-        st.text("Primeras 5 líneas:")
-        for i, line in enumerate(lines[:5]):
-            st.text(f"Línea {i+1}: {repr(line)}")
-    
-    # Intentar diferentes métodos
-    methods = [
-        {"name": "CSV estándar", "func": lambda f: pd.read_csv(f)},
-        {"name": "CSV con punto y coma", "func": lambda f: pd.read_csv(f, delimiter=';')},
-        {"name": "CSV con tabulador", "func": lambda f: pd.read_csv(f, delimiter='\t')},
-        {"name": "CSV flexible", "func": lambda f: pd.read_csv(f, engine='python', on_bad_lines='skip')},
-    ]
-    
-    for method in methods:
-        try:
-            uploaded_file.seek(0)  # Reiniciar archivo
-            df = method["func"](uploaded_file)
-            
-            if not df.empty and len(df.columns) > 1:
-                st.success(f"✅ Cargado con: {method['name']}")
-                st.info(f"📊 Dimensiones: {df.shape[0]} filas × {df.shape[1]} columnas")
-                return df
-        except Exception as e:
-            continue
-    
-    st.error("❌ No se pudo determinar el formato automáticamente")
-    return None
+
 
 def set_dataframe_font_size(font_size=12, header_size=14):
     """
@@ -584,7 +545,7 @@ def cargar_datos():
        
         leer = 1
         if leer ==1:
-             df = cargar_datos_desde_onedrive("https://1drv.ms/x/c/dc44eeb8f33dc5b8/EcDIdi0xIWNMjI630nuNjQsBgMr_B1R9ojE-Vam5ZSZ_OQ?e=4UvUUr")
+             df = load_csv_from_onedrive("https://1drv.ms/x/c/dc44eeb8f33dc5b8/EcDIdi0xIWNMjI630nuNjQsBgMr_B1R9ojE-Vam5ZSZ_OQ?e=4UvUUr")
            
         else:    
             df = pd.read_sql(query, conn)
